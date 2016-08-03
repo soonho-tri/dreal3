@@ -361,7 +361,7 @@ box shrink_for_dop(box b) {
     return b;
 }
 
-box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config, clause_manager * const) {
+box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
         counterexample = shrink_for_dop(counterexample);
@@ -408,7 +408,7 @@ box find_CE_via_underapprox(box const & b, unordered_set<Enode*> const & forall_
     return counterexample;
 }
 
-box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config, clause_manager * const) {
+box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config) {
     vector<contractor> ctcs;
     box counterexample(b, forall_vars);
     if (config.nra_shrink_for_dop) {
@@ -432,16 +432,16 @@ box find_CE_via_overapprox(box const & b, unordered_set<Enode*> const & forall_v
     return cs.m_box;
 }
 
-box contractor_generic_forall::find_CE(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config, clause_manager * const cm_ptr) const {
+box contractor_generic_forall::find_CE(box const & b, unordered_set<Enode*> const & forall_vars, vector<Enode*> const & vec, bool const p, SMTConfig & config /*, clause_manager * const cm_ptr */) const {
     // static unsigned under_approx = 0;
     // static unsigned over_approx = 0;
-    box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config, cm_ptr);
+    box counterexample = find_CE_via_underapprox(b, forall_vars, vec, p, config);
     if (!counterexample.is_empty()) {
         // ++under_approx;
         // cerr << "WE USE UNDERAPPROX: " << under_approx << "/" << over_approx<< "/" << (under_approx + over_approx) << endl;
         // cerr << counterexample << endl;
     } else {
-        counterexample = find_CE_via_overapprox(b, forall_vars, vec, p, config, cm_ptr);
+        counterexample = find_CE_via_overapprox(b, forall_vars, vec, p, config);
         // ++over_approx;
         // cerr << "WE USE FULL       : " << under_approx << "/" << over_approx << "/" << (under_approx + over_approx)
         //      << " " << counterexample.is_empty() << endl
