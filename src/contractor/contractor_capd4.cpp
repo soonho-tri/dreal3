@@ -937,6 +937,28 @@ void contractor_capd_full::prune(contractor_status & cs) {
     return;
 }
 
+static double mid(capd::interval const & i) { return i.leftBound() / 2 + i.rightBound() / 2; }
+
+void generate_csv(vector<Enode *> const & vars_0, vector<Enode *> const & pars_0,
+                  vector<pair<capd::interval, capd::IVector>> const & enclosures) {
+    std::cerr << "time";
+    for (auto const & var : vars_0) {
+        std::cerr << ", " << var;
+    }
+    for (auto const & par : pars_0) {
+        std::cerr << ", " << par;
+    }
+    for (auto const & p : enclosures) {
+        auto const & time = p.first;
+        std::cerr << mid(time);
+        auto const & values = p.second;
+        for (capd::IVector::size_type i = 0; i < values.dimension(); ++i) {
+            std::cerr << ", " << mid(values[i]);
+        }
+        std::cerr << std::endl;
+    }
+}
+
 json generate_trace_core(integral_constraint const & ic, vector<Enode *> const & vars_0,
                          vector<Enode *> const & pars_0, box const & b, capd::interval const & T,
                          vector<pair<capd::interval, capd::IVector>> const & enclosures) {
@@ -1023,6 +1045,7 @@ json contractor_capd_full::generate_trace(contractor_status cs) {
             }
             prevTime = m_timeMap->getCurrentTime();
         } while (!m_timeMap->completed());
+        generate_csv(vars_0, pars_0, enclosures);
         return generate_trace_core(ic, vars_0, pars_0, cs.m_box, T, enclosures);
     } catch (capd::intervals::IntervalError<double> & e) {
         throw contractor_exception(e.what());
