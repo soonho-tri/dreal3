@@ -19,7 +19,7 @@ along with dReal. If not, see <http://www.gnu.org/licenses/>.
 
 #include "./dreal_config.h"
 
-#include "Python.h"
+// #include "Python.h"
 
 #include <cassert>
 #include <stdexcept>
@@ -42,9 +42,10 @@ using std::to_string;
 using std::unordered_map;
 using std::ostream;
 
-string generate_py_visualization_string_3d(Enode * const f, unordered_map<string, Enode *> var_map,
-                                           unsigned const num_of_cells,
-                                           string const & minimum_name) {
+static string generate_py_visualization_string_3d(Enode * const f,
+                                                  unordered_map<string, Enode *> var_map,
+                                                  unsigned const num_of_cells,
+                                                  string const & minimum_name) {
     Enode * minimum = var_map[minimum_name];
     var_map.erase(minimum_name);
     ostringstream ss;
@@ -151,9 +152,10 @@ plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
     return python_code;
 }
 
-string generate_py_visualization_string_2d(Enode * const f, unordered_map<string, Enode *> var_map,
-                                           unsigned const num_of_cells,
-                                           string const & minimum_name) {
+static string generate_py_visualization_string_2d(Enode * const f,
+                                                  unordered_map<string, Enode *> var_map,
+                                                  unsigned const num_of_cells,
+                                                  string const & minimum_name) {
     assert(var_map.size() == 2);
 
     string python_code = R"(
@@ -219,46 +221,50 @@ ax = fig.add_subplot(111)
     return python_code;
 }
 
-#ifdef PYTHONLIBS_FOUND
-void eval_python_string(string const & s) {
-    Py_Initialize();
-    PyRun_SimpleString(s.c_str());
-    Py_Exit(0);
-}
+// #ifdef PYTHONLIBS_FOUND
+// void eval_python_string(string const & s) {
+//     Py_Initialize();
+//     PyRun_SimpleString(s.c_str());
+//     Py_Exit(0);
+// }
 
-void visualize_result_via_python_3d(Enode * const f, unordered_map<string, Enode *> const & var_map,
-                                    unsigned const num_of_cells, string const & minimum_name) {
-    string python_code =
-        generate_py_visualization_string_3d(f, var_map, num_of_cells, minimum_name);
-    eval_python_string(python_code);
-}
+// static void visualize_result_via_python_3d(Enode * const f,
+//                                            unordered_map<string, Enode *> const & var_map,
+//                                            unsigned const num_of_cells,
+//                                            string const & minimum_name) {
+//     string python_code =
+//         generate_py_visualization_string_3d(f, var_map, num_of_cells, minimum_name);
+//     eval_python_string(python_code);
+// }
 
-void visualize_result_via_python_2d(Enode * const f, unordered_map<string, Enode *> var_map,
-                                    unsigned const num_of_cells, string const & minimum_name) {
-    string python_code =
-        generate_py_visualization_string_2d(f, var_map, num_of_cells, minimum_name);
-    eval_python_string(python_code);
-}
+// static void visualize_result_via_python_2d(Enode * const f, unordered_map<string, Enode *>
+// var_map,
+//                                            unsigned const num_of_cells,
+//                                            string const & minimum_name) {
+//     string python_code =
+//         generate_py_visualization_string_2d(f, var_map, num_of_cells, minimum_name);
+//     eval_python_string(python_code);
+// }
 
-void run_visualization(Enode * const f, unordered_map<string, Enode *> const & var_map,
-                       unsigned const num_of_cells, string const & minimum_name) {
-    unsigned const var_map_size = var_map.size();
-    if (var_map_size == 3) {
-        visualize_result_via_python_3d(f, var_map, num_of_cells, minimum_name);
-    } else if (var_map_size == 2) {
-        visualize_result_via_python_2d(f, var_map, num_of_cells * num_of_cells, minimum_name);
-    } else {
-        cerr << "Sorry: We only provide visualization for one- and two-dimensional problems."
-             << endl;
-    }
-}
-#else
+// void run_visualization(Enode * const f, unordered_map<string, Enode *> const & var_map,
+//                        unsigned const num_of_cells, string const & minimum_name) {
+//     unsigned const var_map_size = var_map.size();
+//     if (var_map_size == 3) {
+//         visualize_result_via_python_3d(f, var_map, num_of_cells, minimum_name);
+//     } else if (var_map_size == 2) {
+//         visualize_result_via_python_2d(f, var_map, num_of_cells * num_of_cells, minimum_name);
+//     } else {
+//         cerr << "Sorry: We only provide visualization for one- and two-dimensional problems."
+//              << endl;
+//     }
+// }
+// #else
 void run_visualization(Enode * const, unordered_map<string, Enode *> const &, unsigned const,
                        string const &) {
     cerr << "Sorry: No python was deteced during compilation and visualization is disabled."
          << endl;
 }
-#endif
+// #endif
 ostream & save_visualization_code(ostream & out, Enode * const f,
                                   std::unordered_map<std::string, Enode *> const & var_map,
                                   unsigned const num_of_cells, std::string const & minimum_name) {
